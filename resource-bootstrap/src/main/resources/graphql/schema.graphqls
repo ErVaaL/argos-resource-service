@@ -1,0 +1,112 @@
+scalar Long
+
+enum DeviceType {
+    TEMP
+    HUMIDITY
+    CO2
+    MOTION
+}
+
+enum MeasurementType {
+    TEMP
+    HUMIDITY
+    CO2
+    MOTION
+}
+
+enum SortDirection {
+    ASC
+    DESC
+}
+
+type Device {
+    id: ID!
+    name: String!
+    type: DeviceType!
+    building: String!
+    room: String!
+    active: Boolean!
+}
+
+type Measurement {
+    id: ID!
+    deviceId: ID!
+    type: MeasurementType!
+    value: Float!
+    sequenceNumber: Long
+    timestamp: String!
+}
+
+input DeviceFilterInput {
+    building: String
+    room: String
+    type: DeviceType
+    active: Boolean
+}
+
+input MeasurementFilterInput {
+    deviceId: ID
+    type: MeasurementType
+    from: String
+    to: String
+}
+
+input PageRequestInput {
+    page: Int = 0
+    size: Int = 20
+    sortBy: String = "name"
+    sortDirection: SortDirection = ASC
+}
+
+type DevicePage {
+    content: [Device!]!
+    totalElements: Int!
+    page: Int!
+    size: Int!
+}
+
+type MeasurementPage {
+    content: [Measurement!]!
+    totalElements: Int!
+    page: Int!
+    size: Int!
+}
+
+input CreateDeviceInput {
+    name: String!
+    type: DeviceType!
+    building: String!
+    room: String!
+}
+
+input UpdateDeviceInput {
+    name: String
+    type: DeviceType
+    building: String
+    room: String
+    active: Boolean
+}
+
+input CreateMeasurementInput {
+    deviceId: ID!
+    type: MeasurementType!
+    value: Float!
+    timestamp: String
+}
+
+type Query {
+    devices(filter: DeviceFilterInput, page: PageRequestInput): DevicePage!
+    measurements(
+        filter: MeasurementFilterInput
+        page: PageRequestInput
+    ): MeasurementPage!
+}
+
+type Mutation {
+    createDevice(input: CreateDeviceInput!): Device!
+    updateDevice(id: ID!, input: UpdateDeviceInput!): Device!
+    deleteDevice(id: ID!): Boolean!
+
+    createMeasurement(input: CreateMeasurementInput!): Measurement!
+    deleteMeasurement(id: ID!): Boolean!
+}
