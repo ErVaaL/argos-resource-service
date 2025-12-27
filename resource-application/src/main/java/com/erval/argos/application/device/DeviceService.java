@@ -1,5 +1,6 @@
 package com.erval.argos.application.device;
 
+import java.util.Optional;
 import java.util.UUID;
 
 import com.erval.argos.core.application.PageRequest;
@@ -21,6 +22,11 @@ import com.erval.argos.core.domain.device.DeviceType;
  * </ul>
  */
 public record DeviceService(DeviceRepositoryPort repo) implements DeviceCommandUseCase, DeviceQueryUseCase {
+
+    @Override
+    public Optional<Device> findById(String id) {
+        return repo.findById(id);
+    }
 
     /**
      * Creates a new device using the provided command data.
