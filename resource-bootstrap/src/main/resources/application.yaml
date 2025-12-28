@@ -5,13 +5,13 @@ spring:
     http:
       path: /graphql
   mongodb:
-    uri: mongodb://localhost:27017/argos?maxPoolSize=50&minPoolSize=5&maxIdleTimeMS=300000&socketTimeoutMS=10000&connectTimeoutMS=5000&serverSelectionTimeoutMS=5000&retryWrites=true
+    uri: ${SPRING_MONGODB_URI}
     auto-index-creation: true
 
 server:
-  port: 8080
+  port: 8081
 
 argos:
   resource:
     grpc:
-      port: 9091
+      port: ${ARGOS_RESOURCE_GRPC_PORT}
