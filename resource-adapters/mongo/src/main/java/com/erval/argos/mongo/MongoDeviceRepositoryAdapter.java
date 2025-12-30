@@ -45,7 +45,13 @@ public class MongoDeviceRepositoryAdapter implements DeviceRepositoryPort {
      */
     @Override
     public void deleteById(String id) {
-        repo.deleteById(id);
+        repo.findById(id).ifPresent(doc -> {
+            if (!doc.isDeleted()) {
+                doc.setDeleted(true);
+                doc.setActive(false);
+                repo.save(doc);
+            }
+        });
     }
 
     /**
@@ -53,7 +59,12 @@ public class MongoDeviceRepositoryAdapter implements DeviceRepositoryPort {
      */
     @Override
     public void deleteAll() {
-        repo.deleteAll();
+        List<DeviceDocument> all = repo.findAll();
+        all.forEach(d -> {
+            d.setActive(false);
+            d.setDeleted(true);
+        });
+        repo.saveAll(all);
     }
 
     /**
@@ -70,7 +81,7 @@ public class MongoDeviceRepositoryAdapter implements DeviceRepositoryPort {
                 pageRequest.direction() == SortDirection.ASC ? Sort.Direction.ASC : Sort.Direction.DESC,
                 pageRequest.sortBy() != null && !pageRequest.sortBy().isBlank() ? pageRequest.sortBy() : "name");
 
-        Page<DeviceDocument> page = repo.findAll(pageable);
+        Page<DeviceDocument> page = repo.findAllByDeletedFalse(pageable);
         List<Device> content = page.getContent().stream()
                 .map(DeviceDocument::toDomain)
                 .toList();
@@ -114,13 +125,16 @@ public class MongoDeviceRepositoryAdapter implements DeviceRepositoryPort {
                 pageRequest.direction() == SortDirection.ASC
                         ? Sort.Direction.ASC
                         : Sort.Direction.DESC,
-                pageRequest.sortBy() != null && pageRequest.sortBy().isBlank()
+                pageRequest.sortBy() != null && !pageRequest.sortBy().isBlank()
                         ? pageRequest.sortBy()
                         : "name");
 
         org.springframework.data.domain.PageRequest pageable = org.springframework.data.domain.PageRequest
                 .of(pageRequest.page(), pageRequest.size(), sort);
 
+        query.addCriteria(new Criteria().orOperator(
+                Criteria.where("deleted").is(false),
+                Criteria.where("deleted").exists(false)));
         long total = mongoTemplate.count(query, DeviceDocument.class);
         List<DeviceDocument> docs = mongoTemplate.find(query.with(pageable), DeviceDocument.class);
 
@@ -139,7 +153,7 @@ public class MongoDeviceRepositoryAdapter implements DeviceRepositoryPort {
      */
     @Override
     public Optional<Device> findById(String id) {
-        return repo.findById(id).map(DeviceDocument::toDomain);
+        return repo.findByIdAndDeletedFalse(id).map(DeviceDocument::toDomain);
     }
 
     /**
@@ -150,7 +164,7 @@ public class MongoDeviceRepositoryAdapter implements DeviceRepositoryPort {
      */
     @Override
     public Device save(Device device) {
-        repo.findByName(device.name()).ifPresent(existing -> {
+        repo.findByIdAndDeletedFalse(device.name()).ifPresent(existing -> {
             boolean isSame = device.id() != null && device.id().equals(existing.getId());
             if (!isSame) {
                 throw new DataIntegrityViolationException("Device name already exists: " + device.name());

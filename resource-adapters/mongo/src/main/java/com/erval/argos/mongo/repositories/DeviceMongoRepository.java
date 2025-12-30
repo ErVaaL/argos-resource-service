@@ -1,6 +1,12 @@
 package com.erval.argos.mongo.repositories;
 
+import java.util.List;
+import java.util.Optional;
+
 import com.erval.argos.mongo.model.DeviceDocument;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
@@ -15,5 +21,11 @@ public interface DeviceMongoRepository extends MongoRepository<DeviceDocument, S
 
     boolean existsByName(String name);
 
-    java.util.Optional<DeviceDocument> findByName(String name);
+    Optional<DeviceDocument> findByName(String name);
+
+    Optional<DeviceDocument> findByIdAndDeletedFalse(String id);
+
+    Optional<DeviceDocument> findByNameAndDeletedFalse(String name);
+
+    Page<DeviceDocument> findAllByDeletedFalse(Pageable pageable);
 }

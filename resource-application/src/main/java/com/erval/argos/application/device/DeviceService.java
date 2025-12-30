@@ -51,6 +51,7 @@ public record DeviceService(DeviceRepositoryPort repo) implements DeviceCommandU
                 cmd.building(),
                 cmd.room(),
                 true,
+                false,
                 null);
 
         return repo.save(device);
@@ -94,6 +95,7 @@ public record DeviceService(DeviceRepositoryPort repo) implements DeviceCommandU
         String building = cmd.building() != null ? cmd.building() : existing.building();
         String room = cmd.room() != null ? cmd.room() : existing.room();
         boolean active = cmd.active() != null ? cmd.active() : existing.active();
+        boolean deleted = existing.deleted();
 
         Device updated = new Device(
                 existing.id(),
@@ -102,6 +104,7 @@ public record DeviceService(DeviceRepositoryPort repo) implements DeviceCommandU
                 building,
                 room,
                 active,
+                deleted,
                 existing.config());
 
         return repo.save(updated);

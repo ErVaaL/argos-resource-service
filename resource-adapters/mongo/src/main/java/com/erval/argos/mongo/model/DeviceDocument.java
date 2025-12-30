@@ -18,8 +18,8 @@ import org.springframework.data.mongodb.core.mapping.Document;
  * <p>
  * Indexed fields:
  * <ul>
- *   <li>{@code name}: unique business key</li>
- *   <li>{@code building}: common filter field</li>
+ * <li>{@code name}: unique business key</li>
+ * <li>{@code building}: common filter field</li>
  * </ul>
  */
 @Document("devices")
@@ -38,6 +38,8 @@ public class DeviceDocument {
     private String building;
     private String room;
     private boolean active;
+    @Indexed
+    private boolean deleted;
     private DeviceConfigDocument config;
 
     /**
@@ -62,6 +64,7 @@ public class DeviceDocument {
                 device.building(),
                 device.room(),
                 device.active(),
+                device.deleted(),
                 cfg != null ? DeviceConfigDocument.fromDomain(cfg) : null);
     }
 
@@ -79,6 +82,7 @@ public class DeviceDocument {
                 this.building,
                 this.room,
                 this.active,
+                this.deleted,
                 cfg);
     }
 }

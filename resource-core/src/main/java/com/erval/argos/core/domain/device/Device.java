@@ -16,6 +16,8 @@ package com.erval.argos.core.domain.device;
  * @param building building identifier, e.g. "A" or "Main"
  * @param room     room identifier within the building, e.g. "101"
  * @param active   whether the device is currently active
+ * @param deleted  whether the device is marked as deleted
  */
-public record Device(String id, String name, DeviceType type, String building, String room, boolean active, DeviceConfig config) {
+public record Device(String id, String name, DeviceType type, String building, String room, boolean active,
+        boolean deleted, DeviceConfig config) {
 }

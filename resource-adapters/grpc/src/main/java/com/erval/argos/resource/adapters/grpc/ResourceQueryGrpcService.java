@@ -43,6 +43,7 @@ public class ResourceQueryGrpcService extends ResourceQueryServiceImplBase {
                     .setBuilding(d.building())
                     .setRoom(d.room())
                     .setActive(d.active())
+                    .setDeleted(d.deleted())
                     .build();
 
             responseObserver.onNext(GetDeviceResponse.newBuilder()
