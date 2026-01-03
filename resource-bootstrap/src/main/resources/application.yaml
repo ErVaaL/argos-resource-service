@@ -7,6 +7,11 @@ spring:
   mongodb:
     uri: ${SPRING_MONGODB_URI}
     auto-index-creation: true
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://auth.localhost/realms/argos
 
 server:
   port: 8081
