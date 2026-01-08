@@ -72,7 +72,7 @@ class MongoRepositoryAdapterIntegrationTest {
 
     @Test
     void savesAndFindsDeviceById() {
-        Device saved = deviceAdapter.save(new Device("d1", "Sensor A", DeviceType.TEMP, "A", "101", true, null));
+        Device saved = deviceAdapter.save(new Device("d1", "Sensor A", DeviceType.TEMP, "A", "101", true, false, null));
 
         assertThat(deviceAdapter.findById(saved.id()))
             .isPresent()
@@ -114,9 +114,9 @@ class MongoRepositoryAdapterIntegrationTest {
 
     @Test
     void updatesDeviceFields() {
-        deviceAdapter.save(new Device("d1", "Sensor A", DeviceType.TEMP, "A", "101", true, null));
+        deviceAdapter.save(new Device("d1", "Sensor A", DeviceType.TEMP, "A", "101", true, false, null));
 
-        Device updated = deviceAdapter.save(new Device("d1", "Sensor A2", DeviceType.CO2, "A", "101", false, null));
+        Device updated = deviceAdapter.save(new Device("d1", "Sensor A2", DeviceType.CO2, "A", "101", false, false, null));
 
         assertThat(deviceAdapter.findById(updated.id()))
             .isPresent()
@@ -127,7 +127,7 @@ class MongoRepositoryAdapterIntegrationTest {
 
     @Test
     void deletesDeviceById() {
-        deviceAdapter.save(new Device("d1", "Sensor A", DeviceType.TEMP, "A", "101", true, null));
+        deviceAdapter.save(new Device("d1", "Sensor A", DeviceType.TEMP, "A", "101", true, false, null));
 
         deviceAdapter.deleteById("d1");
 
@@ -219,6 +219,7 @@ class MongoRepositoryAdapterIntegrationTest {
             building,
             "101",
             active,
+            false,
             null
         );
     }

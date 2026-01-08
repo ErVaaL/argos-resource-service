@@ -43,7 +43,7 @@ class DeviceServiceTest {
 
     @Test
     void updateDeviceMergesFieldsAndPersists() {
-        Device existing = new Device("id-1", "Old", DeviceType.TEMP, "A", "100", true, null);
+        Device existing = new Device("id-1", "Old", DeviceType.TEMP, "A", "100", true, false, null);
         repo.save(existing);
 
         Device updated = service.updateDevice("id-1", new UpdateDeviceCommand("New", null, null, "200", false));

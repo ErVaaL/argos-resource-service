@@ -1,11 +1,18 @@
 package com.erval.argos.mongo;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
+import java.time.Instant;
+import java.util.List;
+
 import com.erval.argos.application.device.DeviceService;
 import com.erval.argos.application.measurement.MeasurementService;
 import com.erval.argos.core.application.PageRequest;
 import com.erval.argos.core.application.PageResult;
 import com.erval.argos.core.application.SortDirection;
 import com.erval.argos.core.application.port.in.commands.DeviceCommandUseCase;
+import com.erval.argos.core.application.port.in.commands.MeasurementCommandUseCase;
 import com.erval.argos.core.application.port.in.queries.MeasurementQueryUseCase.MeasurementFilter;
 import com.erval.argos.core.application.port.out.DeviceRepositoryPort;
 import com.erval.argos.core.application.port.out.MeasurementRepositoryPort;
@@ -13,6 +20,9 @@ import com.erval.argos.core.domain.device.Device;
 import com.erval.argos.core.domain.device.DeviceType;
 import com.erval.argos.core.domain.measurement.Measurement;
 import com.erval.argos.core.domain.measurement.MeasurementType;
+import com.erval.argos.mongo.model.DeviceDocument;
+import com.erval.argos.mongo.model.MeasurementDocument;
+
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -22,17 +32,14 @@ import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.index.Index;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.MongoDBContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
-
-import java.time.Instant;
-import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * Higher-level business scenario tests combining device and measurement flows.
@@ -61,10 +68,16 @@ class BusinessScenarioIntegrationTest {
     @Autowired
     private MeasurementRepositoryPort measurementPort;
 
+    @Autowired
+    MongoTemplate mongoTemplate;
+
     @BeforeEach
     void setUp() {
-        measurementPort.deleteAll();
-        devicePort.deleteAll();
+        mongoTemplate.dropCollection(MeasurementDocument.class);
+        mongoTemplate.dropCollection(DeviceDocument.class);
+
+        mongoTemplate.indexOps(DeviceDocument.class)
+                .createIndex(new Index().on("name", Sort.Direction.ASC).unique());
     }
 
     @AfterEach
@@ -74,8 +87,13 @@ class BusinessScenarioIntegrationTest {
     }
 
     @Test
+    void printIndexes() {
+        System.out.println(mongoTemplate.indexOps(DeviceDocument.class).getIndexInfo());
+    }
+
+    @Test
     void createMeasurementFailsWhenDeviceMissing() {
-        var cmd = new MeasurementService.CreateMeasurementCommand("missing", MeasurementType.TEMP, 1.0, null);
+        var cmd = new MeasurementCommandUseCase.CreateMeasurementCommand("missing", MeasurementType.TEMP, 1.0, null);
 
         assertThrows(IllegalArgumentException.class, () -> measurementService.createMeasurement(cmd));
     }
@@ -91,14 +109,14 @@ class BusinessScenarioIntegrationTest {
     void duplicateDeviceNameThrowsDataIntegrityViolation() {
         deviceService.createDevice(new DeviceCommandUseCase.CreateDeviceCommand("dup", DeviceType.TEMP, "A", "101"));
 
-        assertThrows(DataIntegrityViolationException.class, () ->
-            deviceService.createDevice(new DeviceCommandUseCase.CreateDeviceCommand("dup", DeviceType.TEMP, "A", "102"))
-        );
+        assertThrows(DataIntegrityViolationException.class, () -> deviceService
+                .createDevice(new DeviceCommandUseCase.CreateDeviceCommand("dup", DeviceType.TEMP, "A", "102")));
     }
 
     @Test
     void deleteByDeviceIdRemovesAllMeasurements() {
-        Device d = deviceService.createDevice(new DeviceCommandUseCase.CreateDeviceCommand("dev1", DeviceType.TEMP, "A", "101"));
+        Device d = deviceService
+                .createDevice(new DeviceCommandUseCase.CreateDeviceCommand("dev1", DeviceType.TEMP, "A", "101"));
         measurementPort.save(new Measurement(null, d.id(), MeasurementType.TEMP, 1.0, 1, Instant.now(), List.of()));
         measurementPort.save(new Measurement(null, d.id(), MeasurementType.HUMIDITY, 2.0, 2, Instant.now(), List.of()));
 
@@ -109,7 +127,8 @@ class BusinessScenarioIntegrationTest {
 
     @Test
     void filtersAndSortsMeasurementsByTimestamp() {
-        Device d = deviceService.createDevice(new DeviceCommandUseCase.CreateDeviceCommand("dev1", DeviceType.TEMP, "A", "101"));
+        Device d = deviceService
+                .createDevice(new DeviceCommandUseCase.CreateDeviceCommand("dev1", DeviceType.TEMP, "A", "101"));
         Instant later = Instant.now();
         Instant earlier = later.minusSeconds(60);
         measurementPort.save(new Measurement(null, d.id(), MeasurementType.TEMP, 1.0, 1, later, List.of()));
@@ -117,15 +136,14 @@ class BusinessScenarioIntegrationTest {
 
         MeasurementFilter filter = new MeasurementFilter(d.id(), MeasurementType.TEMP, null, null);
         PageResult<Measurement> page = measurementService.findMeasurements(
-            filter,
-            new PageRequest(0, 10, "timestamp", SortDirection.ASC)
-        );
+                filter,
+                new PageRequest(0, 10, "timestamp", SortDirection.ASC));
 
         assertThat(page.content()).extracting(Measurement::value).containsExactly(2.0, 1.0);
     }
 
     @TestConfiguration
-    @Import({MongoDeviceRepositoryAdapter.class, MongoMeasurementRepositoryAdapter.class})
+    @Import({ MongoDeviceRepositoryAdapter.class, MongoMeasurementRepositoryAdapter.class })
     static class Config {
         @Bean
         DeviceService deviceService(DeviceRepositoryPort deviceRepo) {
@@ -133,7 +151,8 @@ class BusinessScenarioIntegrationTest {
         }
 
         @Bean
-        MeasurementService measurementService(MeasurementRepositoryPort measurementRepo, DeviceRepositoryPort deviceRepo) {
+        MeasurementService measurementService(MeasurementRepositoryPort measurementRepo,
+                DeviceRepositoryPort deviceRepo) {
             return new MeasurementService(measurementRepo, deviceRepo);
         }
     }

@@ -3,5 +3,5 @@ plugins {
 }
 
 dependencies {
-    api(project(":services:resource-service:resource-core"))
+    api(project(":resource-core"))
 }

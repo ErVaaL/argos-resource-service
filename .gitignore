@@ -1,0 +1,26 @@
+# Build
+.gradle/
+**/build/
+**/bin/
+out/
+
+# Env
+.env
+.env.*
+
+# IntelliJ / IDE
+.idea/
+*.iml
+
+# Eclipse
+.classpath
+.project
+.settings/
+.factorypath
+
+# OS
+.DS_STORE
+Thumbs.db
+
+# Test Containers
+.testcontainers.properties

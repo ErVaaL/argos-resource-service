@@ -12,7 +12,7 @@ class DeviceRecordTest {
     @Test
     void storesFieldsAndConfig() {
         DeviceConfig config = new DeviceConfig(1.0, 10.0, true, List.of("lab", "co2"));
-        Device device = new Device("id-1", "Sensor", DeviceType.CO2, "A", "101", true, config);
+        Device device = new Device("id-1", "Sensor", DeviceType.CO2, "A", "101", true, false, config);
 
         assertEquals("id-1", device.id());
         assertEquals("Sensor", device.name());

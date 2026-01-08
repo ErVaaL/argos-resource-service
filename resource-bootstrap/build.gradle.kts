@@ -4,9 +4,9 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":services:resource-service:resource-application"))
-    implementation(project(":services:resource-service:resource-adapters:mongo"))
-    implementation(project(":services:resource-service:resource-adapters:grpc"))
+    implementation(project(":resource-application"))
+    implementation(project(":resource-adapters:mongo"))
+    implementation(project(":resource-adapters:grpc"))
 
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-graphql")

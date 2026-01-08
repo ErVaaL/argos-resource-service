@@ -4,7 +4,7 @@ plugins {
 }
 
 dependencies {
-    api(project(":services:resource-service:resource-core"))
+    api(project(":resource-core"))
 
     api("org.springframework.boot:spring-boot-starter-data-mongodb")
 
@@ -17,6 +17,7 @@ dependencies {
 
     testImplementation("org.testcontainers:mongodb:1.21.3")
     testImplementation("org.testcontainers:junit-jupiter:1.21.3")
+    testImplementation(project(":resource-application"))
 
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }

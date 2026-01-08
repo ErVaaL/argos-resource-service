@@ -39,7 +39,7 @@ class MeasurementServiceTest {
 
     @Test
     void createMeasurementDefaultsTimestampWhenNull() {
-        deviceRepo.save(new Device("d1", "Sensor", DeviceType.CO2, "A", "101", true, null));
+        deviceRepo.save(new Device("d1", "Sensor", DeviceType.CO2, "A", "101", true, false, null));
 
         Measurement created = service.createMeasurement(
                 new CreateMeasurementCommand("d1", MeasurementType.CO2, 12.3, null));
@@ -50,7 +50,7 @@ class MeasurementServiceTest {
 
     @Test
     void createMeasurementUsesProvidedTimestamp() {
-        deviceRepo.save(new Device("d1", "Sensor", DeviceType.CO2, "A", "101", true, null));
+        deviceRepo.save(new Device("d1", "Sensor", DeviceType.CO2, "A", "101", true, false, null));
         Instant fixed = Instant.parse("2024-01-01T00:00:00Z");
 
         Measurement created = service.createMeasurement(
