@@ -12,6 +12,10 @@ COPY resource-adapters/mongo/build.gradle.kts resource-adapters/mongo/build.grad
 COPY resource-bootstrap/build.gradle.kts resource-bootstrap/build.gradle.kts
 
 RUN --mount=type=cache,target=/home/gradle/.gradle \
+    --mount=type=secret,id=gpr_user \
+    --mount=type=secret,id=gpr_token \
+    GH_USER="$(cat /run/secrets/gpr_user)" \
+    GH_TOKEN="$(cat /run/secrets/gpr_token)" \
     ./gradlew -q :resource-bootstrap:dependencies --no-daemon || true
 
 COPY resource-core resource-core
@@ -20,6 +24,10 @@ COPY resource-adapters resource-adapters
 COPY resource-bootstrap resource-bootstrap
 
 RUN --mount=type=cache,target=/home/gradle/.gradle \
+    --mount=type=secret,id=gpr_user \
+    --mount=type=secret,id=gpr_token \
+    GH_USER="$(cat /run/secrets/gpr_user)" \
+    GH_TOKEN="$(cat /run/secrets/gpr_token)" \
     ./gradlew :resource-bootstrap:bootJar --no-daemon
 
 FROM eclipse-temurin:21-jre-alpine
