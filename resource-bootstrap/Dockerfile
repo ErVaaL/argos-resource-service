@@ -14,9 +14,11 @@ COPY resource-bootstrap/build.gradle.kts resource-bootstrap/build.gradle.kts
 RUN --mount=type=cache,target=/home/gradle/.gradle \
     --mount=type=secret,id=gh_user \
     --mount=type=secret,id=gh_token \
-    GH_USER="$(cat /run/secrets/gh_user)" \
-    GH_TOKEN="$(cat /run/secrets/gh_token)" \
-    ./gradlew -q :resource-bootstrap:dependencies --no-daemon || true
+    set -eu; \
+    U="$(cat /run/secrets/gh_user)"; \
+    T="$(cat /run/secrets/gh_token)"; \
+    GITHUB_ACTOR="$U" GITHUB_TOKEN="$T" ./gradlew -q :resource-bootstrap:dependencies --no-daemon || true
+
 
 COPY resource-core resource-core
 COPY resource-application resource-application
@@ -27,13 +29,9 @@ RUN --mount=type=cache,target=/home/gradle/.gradle \
     --mount=type=secret,id=gh_user \
     --mount=type=secret,id=gh_token \
     set -eu; \
-    echo "Secrets present:"; \
-    ls -l /run/secrets; \
-    echo "Sizes:"; \
-    wc -c /run/secrets/gh_user /run/secrets/gh_token; \
     GH_USER="$(cat /run/secrets/gh_user)"; \
     GH_TOKEN="$(cat /run/secrets/gh_token)"; \
-    ./gradlew :resource-bootstrap:bootJar --no-daemon
+    GH_USER="$GH_USER" GH_TOKEN="$GH_TOKEN" ./gradlew :resource-bootstrap:bootJar --no-daemon
 
 FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
