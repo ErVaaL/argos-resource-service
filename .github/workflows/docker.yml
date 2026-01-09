@@ -7,7 +7,7 @@ on:
 
 permissions:
   contents: read
-  packages: read
+  packages: write
 
 jobs:
   docker:
@@ -42,4 +42,4 @@ jobs:
           cache-to: type=gha,mode=max
           secrets: |
             gh_user=${{ github.actor }}
-            gh_token=${{ secrets.GITHUB_TOKEN }}
+            gh_token=${{ secrets.GH_PACKAGES_TOKEN }}
