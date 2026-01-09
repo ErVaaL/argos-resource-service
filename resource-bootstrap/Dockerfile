@@ -26,9 +26,13 @@ COPY resource-bootstrap resource-bootstrap
 RUN --mount=type=cache,target=/home/gradle/.gradle \
     --mount=type=secret,id=gh_user \
     --mount=type=secret,id=gh_token \
-    GH_USER="$(cat /run/secrets/gh_user)" \
-    GH_TOKEN="$(cat /run/secrets/gh_token)" \
-    test -n "$GH_USER" -a -n "$GH_TOKEN" && \
+    set -eu; \
+    echo "Secrets present:"; \
+    ls -l /run/secrets; \
+    echo "Sizes:"; \
+    wc -c /run/secrets/gh_user /run/secrets/gh_token; \
+    GH_USER="$(cat /run/secrets/gh_user)"; \
+    GH_TOKEN="$(cat /run/secrets/gh_token)"; \
     ./gradlew :resource-bootstrap:bootJar --no-daemon
 
 FROM eclipse-temurin:21-jre-alpine
