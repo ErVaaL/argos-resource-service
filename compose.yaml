@@ -1,0 +1,47 @@
+services:
+  resource-mongo:
+    image: mongo:8
+    container_name: argos-resource-mongo
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: root
+    volumes:
+      - resource_mongo_data:/data/db
+    networks: [argos_net]
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "mongosh",
+          "--quiet",
+          "mongodb://root:root@localhost:27017/admin",
+          "--eval",
+          "db.runCommand({ ping: 1 }).ok",
+        ]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  resource:
+    image: ghcr.io/ervaal/argos-resource-service:main
+    # build:
+    #   context: .
+    #   dockerfile: resource-bootstrap/Dockerfile
+    container_name: argos-resource
+    environment:
+      SPRING_MONGODB_URI: mongodb://root:root@resource-mongo:27017/argos_resource?authSource=admin
+      ARGOS_RESOURCE_GRPC_PORT: 9091
+    depends_on:
+      resource-mongo:
+        condition: service_healthy
+    ports:
+      - "8081:8081"
+      - "9091:9091"
+    networks: [argos_net]
+
+networks:
+  argos_net:
+    name: argos_net
+
+volumes:
+  resource_mongo_data:
