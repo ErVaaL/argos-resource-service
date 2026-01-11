@@ -8,6 +8,9 @@ import com.erval.argos.core.application.port.out.MeasurementRepositoryPort;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+/**
+ * Wires application-layer services with their required ports.
+ */
 @Configuration
 public class ApplicationConfig {
 

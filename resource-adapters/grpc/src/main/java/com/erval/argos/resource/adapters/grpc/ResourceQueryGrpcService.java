@@ -1,19 +1,34 @@
 package com.erval.argos.resource.adapters.grpc;
 
-import com.erval.argos.contracts.resource.v1.*;
+import java.time.Instant;
+import java.util.List;
+import java.util.Optional;
+
+import com.erval.argos.contracts.resource.v1.Device;
+import com.erval.argos.contracts.resource.v1.GetDeviceRequest;
+import com.erval.argos.contracts.resource.v1.GetDeviceResponse;
+import com.erval.argos.contracts.resource.v1.GetLastMeasurementsRequest;
+import com.erval.argos.contracts.resource.v1.GetLastMeasurementsResponse;
+import com.erval.argos.contracts.resource.v1.Measurement;
 import com.erval.argos.contracts.resource.v1.ResourceQueryServiceGrpc.ResourceQueryServiceImplBase;
 import com.erval.argos.core.application.PageRequest;
 import com.erval.argos.core.application.SortDirection;
 import com.erval.argos.core.application.port.in.queries.DeviceQueryUseCase;
 import com.erval.argos.core.application.port.in.queries.MeasurementQueryUseCase;
-import io.grpc.stub.StreamObserver;
-import lombok.RequiredArgsConstructor;
+
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import java.time.Instant;
-import java.util.List;
-import java.util.Optional;
+import io.grpc.stub.StreamObserver;
+import lombok.RequiredArgsConstructor;
 
+/**
+ * gRPC query adapter exposing resource read APIs backed by application use
+ * cases.
+ * <p>
+ * Handles request validation and maps domain models to protobuf responses.
+ */
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class ResourceQueryGrpcService extends ResourceQueryServiceImplBase {
@@ -21,9 +36,16 @@ public class ResourceQueryGrpcService extends ResourceQueryServiceImplBase {
     private final DeviceQueryUseCase deviceQuery;
     private final MeasurementQueryUseCase measurementQuery;
 
+    /**
+     * Fetches a device by id and returns a response with a {@code found} flag.
+     *
+     * @param request          contains the device id
+     * @param responseObserver streams the response or an error
+     */
     @Override
     public void getDevice(GetDeviceRequest request, StreamObserver<GetDeviceResponse> responseObserver) {
         try {
+            log.info("Received GetDeviceRequest for id={}", request.getDeviceId());
             String id = request.getDeviceId();
 
             Optional<com.erval.argos.core.domain.device.Device> opt = deviceQuery.findById(id);
@@ -57,6 +79,16 @@ public class ResourceQueryGrpcService extends ResourceQueryServiceImplBase {
         }
     }
 
+    /**
+     * Fetches the latest measurements for a device, ordered by timestamp
+     * descending.
+     * <p>
+     * Applies a limit (max 500) and defaults the {@code to} timestamp to now
+     * when omitted.
+     *
+     * @param request          contains device id, optional limit and to timestamp
+     * @param responseObserver streams the response or an error
+     */
     @Override
     public void getLastMeasurements(GetLastMeasurementsRequest request,
             StreamObserver<GetLastMeasurementsResponse> responseObserver) {

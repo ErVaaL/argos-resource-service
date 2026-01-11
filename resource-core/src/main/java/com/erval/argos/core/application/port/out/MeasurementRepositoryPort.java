@@ -59,5 +59,8 @@ public interface MeasurementRepositoryPort {
      */
     void deleteByDeviceId(String deviceId);
 
+    /**
+     * Deletes all measurements in the repository.
+     */
     void deleteAll();
 }

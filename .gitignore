@@ -3,6 +3,7 @@
 **/build/
 **/bin/
 out/
+!resource-core/src/main/java/com/erval/argos/core/application/port/out/
 
 # Env
 .env

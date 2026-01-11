@@ -43,6 +43,9 @@ public interface DeviceRepositoryPort {
      */
     void deleteById(String id);
 
+    /**
+     * Deletes all devices.
+     */
     void deleteAll();
 
     /**

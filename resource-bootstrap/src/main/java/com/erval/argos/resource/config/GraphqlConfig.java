@@ -13,6 +13,9 @@ import graphql.schema.CoercingParseValueException;
 import graphql.schema.CoercingSerializeException;
 import graphql.schema.GraphQLScalarType;
 
+/**
+ * GraphQL runtime configuration for custom scalars.
+ */
 @Configuration
 public class GraphqlConfig {
 

@@ -9,6 +9,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.CompoundIndex;
+import org.springframework.data.mongodb.core.index.CompoundIndexes;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.DocumentReference;
@@ -30,6 +32,10 @@ import org.springframework.data.mongodb.core.mapping.DocumentReference;
  */
 @Data
 @Document("measurements")
+@CompoundIndexes({
+    @CompoundIndex(name = "measurement_device_ts_idx", def = "{'deviceId': 1, 'timestamp': -1}"),
+    @CompoundIndex(name = "measurement_device_type_ts_idx", def = "{'deviceId': 1, 'type': 1, 'timestamp': -1}")
+})
 @NoArgsConstructor
 @AllArgsConstructor
 public class MeasurementDocument {

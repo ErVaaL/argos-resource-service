@@ -9,6 +9,11 @@ import jakarta.validation.constraints.NotNull;
 
 /**
  * GraphQL input for creating measurements.
+ *
+ * @param deviceId  device identifier to attach the measurement to
+ * @param type      measurement type
+ * @param value     measured value
+ * @param timestamp optional ISO-8601 timestamp; defaults to now when omitted
  */
 public record CreateMeasurementInput(
         @NotBlank String deviceId,

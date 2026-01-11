@@ -22,18 +22,36 @@ services:
       timeout: 3s
       retries: 20
 
+  resource-keycloak:
+    image: quay.io/keycloak/keycloak:26.0.7
+    container_name: argos-resource-keycloak
+    command: ["start-dev"]
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+      KC_HEALTH_ENABLED: "true"
+    ports:
+      - "8080:8080"
+    networks: [argos_net]
+
   resource:
     image: ghcr.io/ervaal/argos-resource-service:main
-    # build:
-    #   context: .
-    #   dockerfile: resource-bootstrap/Dockerfile
+    build:
+      context: .
+      dockerfile: resource-bootstrap/Dockerfile
+      secrets:
+        - source: gh_user
+        - source: gh_token
     container_name: argos-resource
     environment:
       SPRING_MONGODB_URI: mongodb://root:root@resource-mongo:27017/argos_resource?authSource=admin
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI: http://resource-keycloak:8080/realms/master
       ARGOS_RESOURCE_GRPC_PORT: 9091
     depends_on:
       resource-mongo:
         condition: service_healthy
+      resource-keycloak:
+        condition: service_started
     ports:
       - "8081:8081"
       - "9091:9091"
@@ -45,3 +63,9 @@ networks:
 
 volumes:
   resource_mongo_data:
+
+secrets:
+  gh_user:
+    environment: GH_USER
+  gh_token:
+    environment: GH_TOKEN

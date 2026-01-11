@@ -7,6 +7,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.CompoundIndex;
+import org.springframework.data.mongodb.core.index.CompoundIndexes;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -23,6 +25,10 @@ import org.springframework.data.mongodb.core.mapping.Document;
  * </ul>
  */
 @Document("devices")
+@CompoundIndexes({
+    @CompoundIndex(name = "device_deleted_name_idx", def = "{'deleted': 1, 'name': 1}"),
+    @CompoundIndex(name = "device_filter_idx", def = "{'deleted': 1, 'building': 1, 'room': 1, 'type': 1, 'active': 1}")
+})
 @NoArgsConstructor
 @AllArgsConstructor
 @Data

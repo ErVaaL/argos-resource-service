@@ -12,6 +12,9 @@ import jakarta.annotation.PreDestroy;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * Starts the gRPC server and manages lifecycle shutdown.
+ */
 @Slf4j
 @Configuration
 @RequiredArgsConstructor

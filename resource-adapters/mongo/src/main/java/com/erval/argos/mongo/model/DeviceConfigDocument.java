@@ -22,6 +22,12 @@ public class DeviceConfigDocument {
     private Boolean alertOnThreshold;
     private List<String> tags;
 
+    /**
+     * Converts a domain DeviceConfig to a DeviceConfigDocument.
+     *
+     * @param cfg the domain DeviceConfig
+     * @return the corresponding DeviceConfigDocument
+     */
     public static DeviceConfigDocument fromDomain(DeviceConfig cfg) {
         return new DeviceConfigDocument(
                 cfg.minValue(),
@@ -30,6 +36,11 @@ public class DeviceConfigDocument {
                 cfg.tags());
     }
 
+    /**
+     * Converts this DeviceConfigDocument to a domain DeviceConfig.
+     *
+     * @return the corresponding domain DeviceConfig
+     */
     public DeviceConfig toDomain() {
         return new DeviceConfig(minValue, maxValue, alertOnThreshold, tags);
     }

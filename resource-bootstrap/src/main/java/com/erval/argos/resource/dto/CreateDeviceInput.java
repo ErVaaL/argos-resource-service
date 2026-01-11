@@ -7,7 +7,12 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 /**
- * GraphQL input for creating devices.
+ * GraphQL input for creating devices with required identity and location data.
+ *
+ * @param name     device name
+ * @param type     device type
+ * @param building building identifier
+ * @param room     room identifier
  */
 public record CreateDeviceInput(
         @NotBlank @Size(min = 3, max = 120) String name,

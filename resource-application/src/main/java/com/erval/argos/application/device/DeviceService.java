@@ -23,6 +23,12 @@ import com.erval.argos.core.domain.device.DeviceType;
  */
 public record DeviceService(DeviceRepositoryPort repo) implements DeviceCommandUseCase, DeviceQueryUseCase {
 
+    /**
+     * Finds a device by its identifier.
+     *
+     * @param id the device identifier
+     * @return an optional device; empty if not found
+     */
     @Override
     public Optional<Device> findById(String id) {
         return repo.findById(id);

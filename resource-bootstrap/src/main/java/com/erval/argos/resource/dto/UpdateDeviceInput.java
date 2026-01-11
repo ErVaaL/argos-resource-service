@@ -5,7 +5,13 @@ import com.erval.argos.core.domain.device.DeviceType;
 import jakarta.validation.constraints.Size;
 
 /**
- * GraphQL input for updating devices.
+ * GraphQL input for updating devices; null fields are left unchanged.
+ *
+ * @param name     updated device name
+ * @param type     updated device type
+ * @param building updated building identifier
+ * @param room     updated room identifier
+ * @param active   updated active flag
  */
 public record UpdateDeviceInput(
         @Size(min = 3, max = 120) String name,
